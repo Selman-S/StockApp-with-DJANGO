@@ -1,6 +1,14 @@
 
-from rest_framework import viewsets,filters
+from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
+from .models import (
+    Category,
+    Brand,
+    Product,
+    Firm,
+    Transaction
+)
+
 from .serializers import (
     CategorySerializer,
     BrandSerializer,
@@ -8,16 +16,6 @@ from .serializers import (
     FirmSerializer,
     TransactionSerializer
 )
-
-# Create your views here.
-from .models import (
-  Category, 
-  Brand,
-  Product,
-  Firm,
-  Transaction,
-)
-
 
 class CategoryView(viewsets.ModelViewSet):
   queryset = Category.objects.all()
@@ -44,10 +42,18 @@ class ProductView(viewsets.ModelViewSet):
 
 
 class FirmView(viewsets.ModelViewSet):
-  queryset = Firm.objects.all()
-  serializer = FirmSerializer
-  search_fields = ['name']
+    queryset = Firm.objects.all()
+    serializer_class = FirmSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
+
 
 class TransactionView(viewsets.ModelViewSet):
-  queryset = Transaction.objects.all()
-  serializer_class = TransactionSerializer
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['firm', 'transaction', 'product']
+    search_fields = ['firm']
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
