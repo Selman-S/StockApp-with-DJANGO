@@ -1,6 +1,8 @@
-from django.db.models.signals import pre_save,post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from .models import Transaction,Product
+
+from .models import Product, Transaction
+
 
 @receiver(pre_save,sender=Transaction)
 def calculate_total_price(sender, instance, **kwargs):
